@@ -77,16 +77,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let authors = matches.get_one::<String>("authors").map(|s| s.as_str());
     let ids = matches.get_one::<String>("ids").map(|s| s.as_str());
     let limit = matches.get_one::<i32>("limit").copied();
-    let generic = matches
-        .get_many::<String>("generic")
-        .and_then(|values| {
-            let vec: Vec<&String> = values.collect();
-            if vec.len() == 2 {
-                Some((vec[0].as_str(), vec[1].as_str()))
-            } else {
-                None
-            }
-        });
+    let generic = matches.get_many::<String>("generic").and_then(|values| {
+        let vec: Vec<&String> = values.collect();
+        if vec.len() == 2 {
+            Some((vec[0].as_str(), vec[1].as_str()))
+        } else {
+            None
+        }
+    });
     let hashtag = matches.get_one::<String>("hashtag").map(|s| s.as_str());
     let mentions = matches.get_one::<String>("mentions").map(|s| s.as_str());
     let references = matches.get_one::<String>("references").map(|s| s.as_str());
@@ -101,7 +99,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (ws_stream, _) = connect_async(relay_url).await?;
     let (mut write, mut read) = ws_stream.split();
 
-	write.send(Message::Text(query_string.clone())).await?;
+    write.send(Message::Text(query_string.clone())).await?;
 
     // Ratatui setup
     let backend = CrosstermBackend::new(std::io::stdout());
