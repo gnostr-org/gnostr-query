@@ -46,3 +46,10 @@ brew install gnostr-org/gnostr-org/gnostr-query
 | [gnostr-query-x86_64-apple-darwin.tar.xz](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-x86_64-apple-darwin.tar.xz) | Intel macOS | [checksum](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-x86_64-apple-darwin.tar.xz.sha256) |
 | [gnostr-query-x86_64-pc-windows-msvc.zip](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-x86_64-pc-windows-msvc.zip) | x64 Windows | [checksum](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-x86_64-pc-windows-msvc.zip.sha256) |
 | [gnostr-query-x86_64-unknown-linux-gnu.tar.xz](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-x86_64-unknown-linux-gnu.tar.xz) | x64 Linux | [checksum](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-x86_64-unknown-linux-gnu.tar.xz.sha256) |
+
+
+Usage:
+
+```
+gnostr-query -i 9f832fda858fdddb86c5c79dcc271767804fb3562ed5eea8c8be4f19be8e9cdc
+```
