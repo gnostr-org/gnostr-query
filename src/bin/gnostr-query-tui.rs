@@ -3,12 +3,58 @@ use futures::{SinkExt, StreamExt};
 use ratatui::{
     backend::CrosstermBackend,
     layout::{Constraint, Direction, Layout},
+    style::{Color, Style},
+    text::{Line, Span, Text},
     widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
     Terminal,
 };
 use tokio::sync::mpsc;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use url::Url;
+
+pub fn paragraph_from_json_colon_split(json_string: &str) -> Paragraph {
+    let text = json_colon_split_to_text(json_string);
+    Paragraph::new(text)
+}
+
+fn json_colon_split_to_text(json_string: &str) -> Text {
+    let mut spans = Vec::new();
+    let mut current_key = String::new();
+    let mut in_quotes = false;
+    let mut escape_next = false;
+
+    for char in json_string.chars() {
+        print!("{}", char);
+        match char {
+            ':' if !in_quotes => {
+                spans.push(Span::styled(
+                    current_key.trim().to_string(),
+                    Style::default().fg(Color::Red),
+                ));
+                spans.push(Span::raw(": "));
+                current_key.clear();
+            }
+            '"' if !escape_next => {
+                in_quotes = !in_quotes;
+                current_key.push(char);
+            }
+            '\\' if in_quotes => {
+                escape_next = true;
+                current_key.push(char);
+            }
+            _ => {
+                current_key.push(char);
+                escape_next = false;
+            }
+        }
+    }
+
+    if !current_key.is_empty() {
+        spans.push(Span::raw(current_key.trim().to_string()));
+    }
+
+    Text::from(vec![Line::from(spans)])
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -111,6 +157,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         while let Some(message) = read.next().await {
             if let Ok(data) = message {
                 if let Message::Text(text) = data {
+                    //This is the entry point to wrangle json data
+                    //println!("text={}", text);
+                    let paragraph = paragraph_from_json_colon_split(&text);
+                    //f.render_widget(paragraph, chunks[0]); // chunks is an array of Rects
+
+                    //
+
+                    //
+
+                    //
+                    //
                     if tx.send(text).await.is_err() {
                         break;
                     }
@@ -137,20 +194,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     if msg == "[\"EOSE\",\"gnostr-query\"]" {
                         ListItem::new("TODO: handle EOSE")
                     } else {
-                        ListItem::new(msg.clone())
+                        let mut paragraph = paragraph_from_json_colon_split(&msg);
+
+                        f.render_widget(paragraph, chunks[0]); // chunks is an array of Rects
+                        ListItem::new("render Paragraph here?")
+                        //ListItem::new(msg.clone())
                     }
                 })
                 .collect();
             let list = List::new(items)
                 .block(Block::default().title("Messages").borders(Borders::ALL))
                 .highlight_symbol(">> ");
-            f.render_stateful_widget(list, chunks[0], &mut list_state);
+            //f.render_stateful_widget(list, chunks[0], &mut list_state);
 
             let query_paragraph = Paragraph::new(query_string.clone())
                 .block(Block::default().title("Query").borders(Borders::ALL));
             f.render_widget(query_paragraph, chunks[1]);
         })?;
         if let Ok(msg) = rx.try_recv() {
+            let paragraph = paragraph_from_json_colon_split(&msg);
+            //f.render_widget(paragraph, chunks[0]); // chunks is an array of Rects
+
             messages.push(msg);
             list_state.select(Some(messages.len() - 1));
         }
