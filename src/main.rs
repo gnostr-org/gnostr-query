@@ -1,8 +1,7 @@
 use clap::{Arg, Command};
 use futures::{SinkExt, StreamExt};
 use serde_json::{json, to_string};
-use tokio::net::TcpStream;
-use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
+use tokio_tungstenite::{connect_async, tungstenite::Message};
 use url::Url;
 
 #[tokio::main]
