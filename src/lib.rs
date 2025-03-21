@@ -13,11 +13,17 @@ pub fn build_gnostr_query(
     let mut filt = Map::new();
 
     if let Some(authors) = authors {
-        filt.insert("authors".to_string(), json!(authors.split(',').collect::<Vec<&str>>()));
+        filt.insert(
+            "authors".to_string(),
+            json!(authors.split(',').collect::<Vec<&str>>()),
+        );
     }
 
     if let Some(ids) = ids {
-        filt.insert("ids".to_string(), json!(ids.split(',').collect::<Vec<&str>>()));
+        filt.insert(
+            "ids".to_string(),
+            json!(ids.split(',').collect::<Vec<&str>>()),
+        );
     }
 
     if let Some(limit) = limit {
@@ -30,15 +36,24 @@ pub fn build_gnostr_query(
     }
 
     if let Some(hashtag) = hashtag {
-        filt.insert("#t".to_string(), json!(hashtag.split(',').collect::<Vec<&str>>()));
+        filt.insert(
+            "#t".to_string(),
+            json!(hashtag.split(',').collect::<Vec<&str>>()),
+        );
     }
 
     if let Some(mentions) = mentions {
-        filt.insert("#p".to_string(), json!(mentions.split(',').collect::<Vec<&str>>()));
+        filt.insert(
+            "#p".to_string(),
+            json!(mentions.split(',').collect::<Vec<&str>>()),
+        );
     }
 
     if let Some(references) = references {
-        filt.insert("#e".to_string(), json!(references.split(',').collect::<Vec<&str>>()));
+        filt.insert(
+            "#e".to_string(),
+            json!(references.split(',').collect::<Vec<&str>>()),
+        );
     }
 
     if let Some(kinds) = kinds {
