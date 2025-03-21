@@ -135,7 +135,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .map(|msg| {
                     //TODO handle EOSE
                     if msg == "[\"EOSE\",\"gnostr-query\"]" {
-                        ListItem::new("")
+                        ListItem::new("TODO: handle EOSE")
                     } else {
                         ListItem::new(msg.clone())
                     }
