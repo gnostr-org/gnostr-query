@@ -1,0 +1,20 @@
+[package]
+name = "gnostr-query"
+version = "0.0.1"
+author = "gnostr-org"
+repository = "https://github.com/gnostr-org/gnostr-query.git"
+homepage = "https://github.com/gnostr-org/gnostr-query"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+futures = "0.3"
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
+tokio-tungstenite = { version = "*", features = ["tls"] }
+url = "2.2"
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
