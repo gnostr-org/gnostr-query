@@ -8,9 +8,32 @@ use ratatui::{
     widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
     Terminal,
 };
+use shatter::parser::Parser;
 use tokio::sync::mpsc;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use url::Url;
+
+fn bytes_to_ascii(bytes: &[u8]) -> Result<String, std::string::FromUtf8Error> {
+    String::from_utf8(bytes.to_vec()) // to_vec is needed to create an owned vec
+}
+
+fn shatter_test() {
+    //             v alien  v
+    // 00000000: 20f0 9f91 bd23 6861 7368 7461 670a       _....#hashtag.
+    let s = " #hashtag ";
+    let mut parser = Parser::from_str(s);
+    //println!("{:?}", parser);
+    //println!("{:?}", parser.data());
+    println!("parser.data>>{:?}", bytes_to_ascii(parser.data()));
+    let mut res = parser.parse_until_char('#');
+    println!("{:?}", res);
+    assert_eq!(res, Ok(()));
+    assert_eq!(parser.pos(), 1);
+    res = parser.parse_until_char('t');
+    println!("{:?}", res);
+    assert_eq!(res, Ok(()));
+    assert_eq!(parser.pos(), 6);
+}
 
 pub fn paragraph_from_json_colon_split(json_string: &str) -> Paragraph {
     let text = json_colon_split_to_text(json_string);
@@ -18,13 +41,25 @@ pub fn paragraph_from_json_colon_split(json_string: &str) -> Paragraph {
 }
 
 fn json_colon_split_to_text(json_string: &str) -> Text {
+    let mut parser = Parser::from_str(json_string);
+    //println!("{:?}", parser);
+    println!("parser.len()={:?}", parser.len());
+    println!(
+        "bytes_to_ascii:parser.data:>>>{:?}",
+        bytes_to_ascii(parser.data())
+    );
     let mut spans = Vec::new();
     let mut current_key = String::new();
     let mut in_quotes = false;
     let mut escape_next = false;
 
     for char in json_string.chars() {
-        print!("{}", char);
+        //
+        //print!("{}", char);
+        //
+        let parser = Parser::parse_until_char(&mut parser, '{');
+        //let parser = Parser::parse_until_char(/* &mut shatter::parser::Parser<'_> */, /* char */);
+        //println!("{:?}", parser);
         match char {
             ':' if !in_quotes => {
                 spans.push(Span::styled(
@@ -58,6 +93,7 @@ fn json_colon_split_to_text(json_string: &str) -> Text {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    shatter_test();
     let matches = Command::new("gnostr-query")
         .about("Construct nostr queries and send them over a websocket")
         .arg(
@@ -192,11 +228,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .map(|msg| {
                     //TODO handle EOSE
                     if msg == "[\"EOSE\",\"gnostr-query\"]" {
+                        //let mut paragraph = paragraph_from_json_colon_split(&msg);
+
+                        //f.render_widget(paragraph, chunks[0]); // chunks is an array of Rects
                         ListItem::new("TODO: handle EOSE")
                     } else {
                         let mut paragraph = paragraph_from_json_colon_split(&msg);
 
-                        f.render_widget(paragraph, chunks[0]); // chunks is an array of Rects
+                        //f.render_widget(paragraph, chunks[0]); // chunks is an array of Rects
+
                         ListItem::new("render Paragraph here?")
                         //ListItem::new(msg.clone())
                     }
