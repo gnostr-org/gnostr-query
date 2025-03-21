@@ -130,7 +130,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
                 .split(f.size());
 
-            let items: Vec<ListItem> = messages.iter().map(|msg| ListItem::new(msg.clone())).collect();
+            let items: Vec<ListItem> = messages
+                .iter()
+                .map(|msg| {
+                    //TODO handle EOSE
+                    if msg == "[\"EOSE\",\"gnostr-query\"]" {
+                        ListItem::new("")
+                    } else {
+                        ListItem::new(msg.clone())
+                    }
+                })
+                .collect();
             let list = List::new(items)
                 .block(Block::default().title("Messages").borders(Borders::ALL))
                 .highlight_symbol(">> ");
