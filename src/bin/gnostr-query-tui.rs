@@ -8,13 +8,35 @@ use ratatui::{
     widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
     Terminal,
 };
+use serde::de::Error as SerdeError;
+use serde_json::{Result, Value};
 use shatter::parser::Parser;
 use tokio::sync::mpsc;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use url::Url;
 
-fn bytes_to_ascii(bytes: &[u8]) -> Result<String, std::string::FromUtf8Error> {
-    String::from_utf8(bytes.to_vec()) // to_vec is needed to create an owned vec
+//fn bytes_to_ascii(bytes: &[u8]) -> Result<String, std::string::FromUtf8Error> {
+//fn bytes_to_ascii(bytes: &[u8]) -> Result<String, serde_json::Error> {
+fn bytes_to_ascii(bytes: &[u8]) -> String {
+    // to_vec is needed to create an owned vec
+    String::from_utf8(bytes.to_vec()).expect("")
+}
+
+fn extract_elements(json_str: &str, keys: &[&str]) -> Result<Value> {
+    let json: Value = serde_json::from_str(json_str)?;
+
+    match json {
+        Value::Object(map) => {
+            let mut extracted = serde_json::Map::new();
+            for key in keys {
+                if let Some(value) = map.get(*key) {
+                    extracted.insert(key.to_string(), value.clone());
+                }
+            }
+            Ok(Value::Object(extracted))
+        }
+        _ => Err(serde_json::Error::custom("Input is not a JSON object")),
+    }
 }
 
 fn shatter_test() {
@@ -22,16 +44,21 @@ fn shatter_test() {
     // 00000000: 20f0 9f91 bd23 6861 7368 7461 670a       _....#hashtag.
     let s = " #hashtag ";
     let mut parser = Parser::from_str(s);
+    //access
     //println!("{:?}", parser);
     //println!("{:?}", parser.data());
-    println!("parser.data>>{:?}", bytes_to_ascii(parser.data()));
+    //println!("parser.data>>{:?}", bytes_to_ascii(parser.data()));
+
     let mut res = parser.parse_until_char('#');
-    println!("{:?}", res);
+    //result
     assert_eq!(res, Ok(()));
+    //position
     assert_eq!(parser.pos(), 1);
+
     res = parser.parse_until_char('t');
-    println!("{:?}", res);
+    //result
     assert_eq!(res, Ok(()));
+    //position
     assert_eq!(parser.pos(), 6);
 }
 
@@ -43,11 +70,12 @@ pub fn paragraph_from_json_colon_split(json_string: &str) -> Paragraph {
 fn json_colon_split_to_text(json_string: &str) -> Text {
     let mut parser = Parser::from_str(json_string);
     //println!("{:?}", parser);
-    println!("parser.len()={:?}", parser.len());
-    println!(
-        "bytes_to_ascii:parser.data:>>>{:?}",
-        bytes_to_ascii(parser.data())
-    );
+    //println!("parser.len()={:?}", parser.len());
+    //println!(
+    //    "bytes_to_ascii:parser.data:{:?} {}",
+    //    bytes_to_ascii(parser.data()),
+    //    parser.len()
+    //);
     let mut spans = Vec::new();
     let mut current_key = String::new();
     let mut in_quotes = false;
@@ -57,9 +85,7 @@ fn json_colon_split_to_text(json_string: &str) -> Text {
         //
         //print!("{}", char);
         //
-        let parser = Parser::parse_until_char(&mut parser, '{');
-        //let parser = Parser::parse_until_char(/* &mut shatter::parser::Parser<'_> */, /* char */);
-        //println!("{:?}", parser);
+        //std::process::exit(0);
         match char {
             ':' if !in_quotes => {
                 spans.push(Span::styled(
@@ -78,7 +104,7 @@ fn json_colon_split_to_text(json_string: &str) -> Text {
                 current_key.push(char);
             }
             _ => {
-                current_key.push(char);
+                //current_key.push(char);
                 escape_next = false;
             }
         }
@@ -92,7 +118,8 @@ fn json_colon_split_to_text(json_string: &str) -> Text {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<()> {
     shatter_test();
     let matches = Command::new("gnostr-query")
         .about("Construct nostr queries and send them over a websocket")
@@ -174,36 +201,38 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let query_string = gnostr_query::build_gnostr_query(
         authors, ids, limit, generic, hashtag, mentions, references, kinds,
-    )?;
+    )
+    .expect("");
 
     let relay_url_str = matches.get_one::<String>("relay").unwrap();
-    let relay_url = Url::parse(relay_url_str)?;
-    let (ws_stream, _) = connect_async(relay_url).await?;
+    let relay_url = Url::parse(relay_url_str).expect("");
+    let (ws_stream, _) = connect_async(relay_url).await.expect("");
+
     let (mut write, mut read) = ws_stream.split();
 
-    write.send(Message::Text(query_string.clone())).await?;
+    //query send
+    write
+        .send(Message::Text(query_string.clone()))
+        .await
+        .expect("");
 
     // Ratatui setup
     let backend = CrosstermBackend::new(std::io::stdout());
-    let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
+    let mut terminal = Terminal::new(backend).expect("");
+    terminal.clear().expect("");
 
     let (tx, mut rx) = mpsc::channel(100);
+
+    //
     tokio::spawn(async move {
         while let Some(message) = read.next().await {
             if let Ok(data) = message {
                 if let Message::Text(text) = data {
                     //This is the entry point to wrangle json data
                     //println!("text={}", text);
-                    let paragraph = paragraph_from_json_colon_split(&text);
-                    //f.render_widget(paragraph, chunks[0]); // chunks is an array of Rects
+                    //let elements = extract_elements(&text,&[&"", &""]);
+                    //println!("{:?}", elements);
 
-                    //
-
-                    //
-
-                    //
-                    //
                     if tx.send(text).await.is_err() {
                         break;
                     }
@@ -216,47 +245,84 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut list_state = ListState::default();
 
     loop {
-        terminal.draw(|f| {
-            #[allow(deprecated)]
-            let chunks = Layout::default()
-                .direction(Direction::Vertical)
-                .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
-                .split(f.size());
+        terminal
+            .draw(|f| {
+                #[allow(deprecated)]
+                let chunks = Layout::default()
+                    .direction(Direction::Vertical)
+                    .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
+                    .split(f.size());
 
-            let items: Vec<ListItem> = messages
-                .iter()
-                .map(|msg| {
-                    //TODO handle EOSE
-                    if msg == "[\"EOSE\",\"gnostr-query\"]" {
-                        //let mut paragraph = paragraph_from_json_colon_split(&msg);
+                let items: Vec<ListItem> = messages
+                    .iter()
+                    .map(|msg| {
+                        //TODO handle EOSE
+                        if msg == "[\"EOSE\",\"gnostr-query\"]" {
+                            //let mut paragraph = paragraph_from_json_colon_split(&msg);
 
-                        //f.render_widget(paragraph, chunks[0]); // chunks is an array of Rects
-                        ListItem::new("TODO: handle EOSE")
-                    } else {
-                        let mut paragraph = paragraph_from_json_colon_split(&msg);
+                            //f.render_widget(paragraph, chunks[0]); // chunks is an array of Rects
+                            ListItem::new("TODO: handle EOSE")
+                        } else {
+                            //ListItem::new("{\"string\":\"test\"}")
+                            //ListItem::new(String::from("\n\n\nrender Paragraph here?") + &msg.clone())
+                            //ListItem::new(String::from("\n\n\n") + &msg.clone() + &String::from("\n\n\n"))
+                            ListItem::new(String::from(&msg.clone()))
+                        }
+                    })
+                    .collect();
 
-                        //f.render_widget(paragraph, chunks[0]); // chunks is an array of Rects
+                let list = List::new(items)
+                    .block(Block::default().title("Messages").borders(Borders::ALL))
+                    .highlight_symbol(">>--->> ");
+                f.render_stateful_widget(list, chunks[0], &mut list_state);
 
-                        ListItem::new("render Paragraph here?")
-                        //ListItem::new(msg.clone())
-                    }
-                })
-                .collect();
-            let list = List::new(items)
-                .block(Block::default().title("Messages").borders(Borders::ALL))
-                .highlight_symbol(">> ");
-            //f.render_stateful_widget(list, chunks[0], &mut list_state);
+                let query_paragraph = Paragraph::new(query_string.clone())
+                    .block(Block::default().title("Query").borders(Borders::ALL));
+                f.render_widget(query_paragraph, chunks[1]);
+            })
+            .expect("draw loop:render_widget query_paragraph");
 
-            let query_paragraph = Paragraph::new(query_string.clone())
-                .block(Block::default().title("Query").borders(Borders::ALL));
-            f.render_widget(query_paragraph, chunks[1]);
-        })?;
         if let Ok(msg) = rx.try_recv() {
-            let paragraph = paragraph_from_json_colon_split(&msg);
-            //f.render_widget(paragraph, chunks[0]); // chunks is an array of Rects
+            let msg_json: String = serde_json::to_string(&msg.clone())?;
 
-            messages.push(msg);
-            list_state.select(Some(messages.len() - 1));
+            let added_string_1 = "added_string_1";
+            let added_int = 30;
+            let json_str = &format!(
+                r#"{{"added_string_1": "{}", "added_int": {}, "address":{{"street":"1234 street"}},"EVENT": {}}}"#,
+                //r#"{{"added_string_1": "{}", "added_int": {}, "address":{{"street":"1234 street"}},"": {}}}"#,
+                added_string_1,
+                added_int,
+                msg.clone() //msg_json.clone()
+            );
+
+            let keys_to_extract = &[
+                "EVENT",
+                "content",
+                "string",
+                "added_string_1",
+                "added_int",
+                "city",
+                "address",
+            ];
+
+            //let keys_to_extract = &["content", "string", "added_string_1", "added_int", "city", "address", "street", "EVENT"];
+
+            match extract_elements(json_str, keys_to_extract) {
+                Ok(extracted_json) => {
+                    //println!("\n\n\n\n\n\n\n{}\n\n\n\n\n\n\n", extracted_json);
+
+                    let extracted_json: String = serde_json::to_string(&extracted_json)?;
+
+                    messages.push(extracted_json);
+                    list_state.select(Some(messages.len() - 1));
+                }
+                Err(err) => {
+                    eprintln!("Error: {}", err);
+                }
+            }
+
+            //messages.push(msg);
+            //list_state.select(Some(messages.len() - 1));
         }
     }
 }
