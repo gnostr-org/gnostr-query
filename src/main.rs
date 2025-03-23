@@ -57,7 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .short('l')
                 .long("limit")
                 .value_parser(clap::value_parser!(i32))
-                .default_value("1")
+                .default_value("500")
                 .help("Limit the number of results"),
         )
         .arg(
@@ -152,7 +152,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             std::process::exit(0);
         }
         if let Message::Text(text) = data {
-            print!("{}\n", text);
+            print!("{}", text);
         count += 1;
         }
     }
