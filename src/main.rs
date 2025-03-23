@@ -57,6 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .short('l')
                 .long("limit")
                 .value_parser(clap::value_parser!(i32))
+                .default_value("1")
                 .help("Limit the number of results"),
         )
         .arg(
@@ -85,8 +86,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
+    let mut limit_check: i32 = 0;
     if let Some(limit) = matches.get_one::<i32>("limit") {
-        filt.insert("limit".to_string(), json!(limit));
+        // ["EOSE","gnostr-query"] counts as a message!      + 1
+        filt.insert("limit".to_string(), json!(limit.clone() /*+ 1*/));
+        limit_check = *limit;
     }
 
     if let Some(generic) = matches.get_many::<String>("generic") {
@@ -141,10 +145,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     write.send(Message::Text(query_string)).await?;
 
+    let mut count: i32 = 0;
     while let Some(message) = read.next().await {
         let data = message?;
+        if count >= limit_check {
+            std::process::exit(0);
+        }
         if let Message::Text(text) = data {
-            println!("{}", text);
+            print!("{}\n", text);
+        count += 1;
         }
     }
 
