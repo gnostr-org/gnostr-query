@@ -17,19 +17,18 @@ Options:
   -h, --help                     Print help
 ```
 
-
-## Install gnostr-query 0.0.1
+## Install gnostr-query 0.0.3
 
 ### Install prebuilt binaries via shell script
 
 ```sh
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-installer.sh | sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.3/gnostr-query-installer.sh | sh
 ```
 
 ### Install prebuilt binaries via powershell script
 
 ```sh
-powershell -ExecutionPolicy Bypass -c "irm https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-installer.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.3/gnostr-query-installer.ps1 | iex"
 ```
 
 ### Install prebuilt binaries via Homebrew
@@ -38,14 +37,14 @@ powershell -ExecutionPolicy Bypass -c "irm https://github.com/gnostr-org/gnostr-
 brew install gnostr-org/gnostr-org/gnostr-query
 ```
 
-## Download gnostr-query 0.0.1
+## Download gnostr-query 0.0.3
 
 |  File  | Platform | Checksum |
 |--------|----------|----------|
-| [gnostr-query-aarch64-apple-darwin.tar.xz](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-aarch64-apple-darwin.tar.xz) | Apple Silicon macOS | [checksum](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-aarch64-apple-darwin.tar.xz.sha256) |
-| [gnostr-query-x86_64-apple-darwin.tar.xz](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-x86_64-apple-darwin.tar.xz) | Intel macOS | [checksum](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-x86_64-apple-darwin.tar.xz.sha256) |
-| [gnostr-query-x86_64-pc-windows-msvc.zip](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-x86_64-pc-windows-msvc.zip) | x64 Windows | [checksum](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-x86_64-pc-windows-msvc.zip.sha256) |
-| [gnostr-query-x86_64-unknown-linux-gnu.tar.xz](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-x86_64-unknown-linux-gnu.tar.xz) | x64 Linux | [checksum](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.1/gnostr-query-x86_64-unknown-linux-gnu.tar.xz.sha256) |
+| [gnostr-query-aarch64-apple-darwin.tar.xz](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.3/gnostr-query-aarch64-apple-darwin.tar.xz) | Apple Silicon macOS | [checksum](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.3/gnostr-query-aarch64-apple-darwin.tar.xz.sha256) |
+| [gnostr-query-x86_64-apple-darwin.tar.xz](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.3/gnostr-query-x86_64-apple-darwin.tar.xz) | Intel macOS | [checksum](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.3/gnostr-query-x86_64-apple-darwin.tar.xz.sha256) |
+| [gnostr-query-x86_64-pc-windows-msvc.zip](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.3/gnostr-query-x86_64-pc-windows-msvc.zip) | x64 Windows | [checksum](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.3/gnostr-query-x86_64-pc-windows-msvc.zip.sha256) |
+| [gnostr-query-x86_64-unknown-linux-gnu.tar.xz](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.3/gnostr-query-x86_64-unknown-linux-gnu.tar.xz) | x64 Linux | [checksum](https://github.com/gnostr-org/gnostr-query/releases/download/v0.0.3/gnostr-query-x86_64-unknown-linux-gnu.tar.xz.sha256) |
 
 
 Usage:
