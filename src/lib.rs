@@ -4,7 +4,7 @@ pub fn build_gnostr_query(
     authors: Option<String>,
     ids: Option<String>,
     limit: Option<i32>,
-    generic: Option<(&str, &str)>,
+    generic: Option<(String, String)>,
     hashtag: Option<&str>,
     mentions: Option<&str>,
     references: Option<&str>,
