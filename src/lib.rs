@@ -1,5 +1,87 @@
 use serde_json::{json, Map};
 
+#[derive(Debug)]
+pub struct Config {
+    host: String,
+    port: u16,
+    use_tls: bool,
+    retries: u8,
+    authors: String,
+    ids: String,
+    limit: i32,
+    generic: (String, String),
+    hashtag: String,
+    mentions: String,
+    references: String,
+    kinds: String,
+}
+
+#[derive(Debug, Default)]
+pub struct ConfigBuilder {
+    host: Option<String>,
+    port: Option<u16>,
+    use_tls: bool,
+    retries: u8,
+    authors: Option<String>,
+    ids: Option<String>,
+    limit: Option<i32>,
+    generic: Option<(String, String)>,
+    hashtag: Option<String>,
+    mentions: Option<String>,
+    references: Option<String>,
+    kinds: Option<String>,
+}
+impl ConfigBuilder {
+    pub fn new() -> Self {
+        ConfigBuilder {
+            host: None,
+            port: None,
+            use_tls: false,
+            retries: 0,
+            authors: None,
+            ids: None,
+            limit: None,
+            generic: None,
+            hashtag: None,
+            mentions: None,
+            references: None,
+            kinds: None,
+        }
+    }
+    pub fn host(mut self, host: &str) -> Self {
+        self.host = Some(host.to_string());
+        self
+    }
+    pub fn port(mut self, port: u16) -> Self {
+        self.port = Some(port);
+        self
+    }
+    pub fn use_tls(mut self, use_tls: bool) -> Self {
+        self.use_tls = use_tls;
+        self
+    }
+    pub fn retries(mut self, retries: u8) -> Self {
+        self.retries = retries;
+        self
+    }
+    pub fn build(self) -> Result<Config, String> {
+        Ok(Config {
+            host: self.host.ok_or("Missing host")?,
+            port: self.port.ok_or("Missing port")?,
+            use_tls: self.use_tls,
+            retries: self.retries,
+            authors: self.authors.ok_or("")?,
+            ids: self.ids.ok_or("")?,
+            limit: self.limit.ok_or("")?,
+            generic: self.generic.ok_or("")?,
+            hashtag: self.hashtag.ok_or("")?,
+            mentions: self.mentions.ok_or("")?,
+            references: self.references.ok_or("")?,
+            kinds: self.kinds.ok_or("")?,
+        })
+    }
+}
+
 pub fn build_gnostr_query(
     authors: Option<&str>,
     ids: Option<&str>,

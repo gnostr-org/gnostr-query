@@ -1,5 +1,6 @@
 use clap::{Arg, Command};
 use futures::{SinkExt, StreamExt};
+use gnostr_query::ConfigBuilder;
 use serde_json::{json, to_string};
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use url::Url;
@@ -9,42 +10,49 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let matches = Command::new("gnostr-query")
         .about("Construct nostr queries and send them over a websocket")
         .arg(
+            //Arg::new("authors")
             Arg::new("authors")
                 .short('a')
                 .long("authors")
                 .help("Comma-separated list of authors"),
         )
         .arg(
+            //Arg::new("mentions")
             Arg::new("mentions")
                 .short('p')
                 .long("mentions")
                 .help("Comma-separated list of mentions"),
         )
         .arg(
+            //Arg::new("references")
             Arg::new("references")
                 .short('e')
                 .long("references")
                 .help("Comma-separated list of references"),
         )
         .arg(
+            //Arg::new("hashtag")
             Arg::new("hashtag")
                 .short('t')
                 .long("hashtag")
                 .help("Comma-separated list of hashtags"),
         )
         .arg(
+            //Arg::new("ids")
             Arg::new("ids")
                 .short('i')
                 .long("ids")
                 .help("Comma-separated list of ids"),
         )
         .arg(
+            //Arg::new("kinds")
             Arg::new("kinds")
                 .short('k')
                 .long("kinds")
                 .help("Comma-separated list of kinds (integers)"),
         )
         .arg(
+            //Arg::new("generic")
             Arg::new("generic")
                 .short('g')
                 .long("generic")
@@ -53,6 +61,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .help("Generic tag query: #<tag>: value"),
         )
         .arg(
+            //Arg::new("limit")
             Arg::new("limit")
                 .short('l')
                 .long("limit")
@@ -61,6 +70,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .help("Limit the number of results"),
         )
         .arg(
+            //Arg::new("relay")
             Arg::new("relay")
                 .short('r')
                 .long("relay")
@@ -136,6 +146,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    let config = ConfigBuilder::new()
+        .host("localhost")
+        .port(8080)
+        .use_tls(true)
+        .retries(5)
+        .build()?;
+
+    println!("{:?}", config);
+
     let q = json!(["REQ", "gnostr-query", filt]);
     let query_string = to_string(&q)?;
     let relay_url_str = matches.get_one::<String>("relay").unwrap();
@@ -153,7 +172,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         if let Message::Text(text) = data {
             print!("{}", text);
-        count += 1;
+            count += 1;
         }
     }
 
