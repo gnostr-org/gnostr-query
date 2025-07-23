@@ -80,24 +80,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             json!(authors.split(',').collect::<Vec<&str>>()),
         );
     } else {
-        //filt.insert(
-        //    "authors".to_string(),
-        //    json!("".split(',').collect::<Vec<&str>>()),
-        //);
     }
 
+    let mut limit_check: i32 = 0;
     if let Some(ids) = matches.get_one::<String>("ids") {
         filt.insert(
             "ids".to_string(),
             json!(ids.split(',').collect::<Vec<&str>>()),
         );
-    }
-
-    let mut limit_check: i32 = 0;
-    if let Some(limit) = matches.get_one::<i32>("limit") {
-        // ["EOSE","gnostr-query"] counts as a message!      + 1
-        filt.insert("limit".to_string(), json!(limit.clone() /*+ 1*/));
-        limit_check = *limit;
+        filt.insert("limit".to_string(), json!(1_i32 /*+ 1*/));
+        limit_check = 1_i32;
+    } else {
+        if let Some(limit) = matches.get_one::<i32>("limit") {
+            // ["EOSE","gnostr-query"] counts as a message!      + 1
+            filt.insert("limit".to_string(), json!(limit.clone() /*+ 1*/));
+            limit_check = *limit;
+        }
     }
 
     if let Some(generic) = matches.get_many::<String>("generic") {

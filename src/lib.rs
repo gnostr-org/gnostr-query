@@ -2,7 +2,7 @@ use serde_json::{json, Map};
 
 pub fn build_gnostr_query(
     authors: Option<String>,
-    ids: Option<&str>,
+    ids: Option<String>,
     limit: Option<i32>,
     generic: Option<(&str, &str)>,
     hashtag: Option<&str>,
