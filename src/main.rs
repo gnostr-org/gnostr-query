@@ -154,7 +154,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .authors("")
         .ids("")
         .limit(1)
-        .generic(&("",""))
+        .generic("", "")
         .hashtag("")
         .mentions("")
         .references("")

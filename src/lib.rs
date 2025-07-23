@@ -76,8 +76,10 @@ impl ConfigBuilder {
         self.limit = Some(limit);
         self
     }
-    pub fn generic(mut self, generic: &(&str, &str)) -> Self {
-        self.generic = Some(("".to_string(), "".to_string()));
+    //pub fn generic(mut self, generic: &(&str, &str), tag: &str, val: &str) -> Self {
+    pub fn generic(mut self, tag: &str, val: &str) -> Self {
+        //self.generic = Some(("".to_string(), "".to_string()));
+        self.generic = Some((tag.to_string(), val.to_string()));
         self
     }
     pub fn hashtag(mut self, hashtag: &str) -> Self {
