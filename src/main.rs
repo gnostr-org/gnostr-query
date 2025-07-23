@@ -167,7 +167,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let gnostr_query = build_gnostr_query(
         Some(filt.get("authors").unwrap().to_string()),
-        None,
+        Some(filt.get("ids").unwrap().to_string()),
         None,
         None,
         None,
