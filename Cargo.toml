@@ -11,6 +11,10 @@ license = "MIT"
 categories = ["command-line-utilities"]
 keywords = ["terminal", "input", "event", "cli"]
 
+[lib]
+name = "gnostr_query"
+path = "src/lib.rs"
+
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 futures = "0.3"
