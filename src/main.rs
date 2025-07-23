@@ -1,6 +1,8 @@
 use clap::{Arg, Command};
 use futures::{SinkExt, StreamExt};
-use serde_json::{json, to_string};
+use gnostr_query::build_gnostr_query;
+use log::debug;
+use serde_json::{json, to_string, Value};
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use url::Url;
 
@@ -77,6 +79,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "authors".to_string(),
             json!(authors.split(',').collect::<Vec<&str>>()),
         );
+    } else {
+        //filt.insert(
+        //    "authors".to_string(),
+        //    json!("".split(',').collect::<Vec<&str>>()),
+        //);
     }
 
     if let Some(ids) = matches.get_one::<String>("ids") {
@@ -123,6 +130,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
+    //grab the values from matches
+    let mut vec_kind_ints: Vec<i64> = vec![];
     if let Some(kinds) = matches.get_one::<String>("kinds") {
         if let Ok(kind_ints) = kinds
             .split(',')
@@ -130,11 +139,51 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .collect::<Result<Vec<i64>, _>>()
         {
             filt.insert("kinds".to_string(), json!(kind_ints));
+            debug!("136:kind_ints={:?}", kind_ints);
+            for element in kind_ints.clone() {
+                debug!("138:vec_kind_ints element={:?}", element);
+                vec_kind_ints.push(element);
+            }
         } else {
             eprintln!("Error parsing kinds. Ensure they are integers.");
             std::process::exit(1);
         }
     }
+
+    if let Some(kinds) = filt.get("kinds") {
+        debug!("kinds: {}", kinds);
+    } else {
+        debug!("'kinds' key not found.");
+    }
+
+    //pub fn build_gnostr_query(
+    //    authors: Option<&str>,
+    //    ids: Option<&str>,
+    //    limit: Option<i32>,
+    //    generic: Option<(&str, &str)>,
+    //    hashtag: Option<&str>,
+    //    mentions: Option<&str>,
+    //    references: Option<&str>,
+    //    kinds: Option<Vec<i64>>,
+    //) -> Result<String, Box<dyn std::error::Error>>
+
+    let gnostr_query = build_gnostr_query(
+        Some(filt.get("authors").unwrap().to_string()),
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        Some(vec_kind_ints.clone()),
+    );
+    let v: Value = serde_json::from_str(&gnostr_query.unwrap().clone())?;
+
+    println!("176:{:?}", v);
+
+    println!("v={:?}", v["kinds"]);
+    let v: Value = serde_json::from_str(&format!("{:?}", vec_kind_ints.clone()))?;
+    println!("v={:?}", v.get("kinds"));
 
     let q = json!(["REQ", "gnostr-query", filt]);
     let query_string = to_string(&q)?;
@@ -153,7 +202,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         if let Message::Text(text) = data {
             print!("{}", text);
-        count += 1;
+            count += 1;
         }
     }
 
