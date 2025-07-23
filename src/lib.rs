@@ -77,7 +77,7 @@ impl ConfigBuilder {
         self
     }
     pub fn generic(mut self, generic: &(&str, &str)) -> Self {
-        //self.ids = Some(generic.to_string());
+        self.generic = Some(("".to_string(), "".to_string()));
         self
     }
     pub fn hashtag(mut self, hashtag: &str) -> Self {

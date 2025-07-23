@@ -151,6 +151,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .port(8080)
         .use_tls(true)
         .retries(5)
+        .authors("")
+        .ids("")
+        .limit(1)
+        .generic(&("",""))
+        .hashtag("")
+        .mentions("")
+        .references("")
+        .kinds("")
         .build()?;
 
     println!("{:?}", config);
