@@ -116,6 +116,8 @@ impl ConfigBuilder {
     }
 }
 
+pub fn send(filter: Map<String, Vec<String>>) {}
+
 pub fn build_gnostr_query(
     authors: Option<&str>,
     ids: Option<&str>,
