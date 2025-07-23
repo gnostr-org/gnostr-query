@@ -64,6 +64,38 @@ impl ConfigBuilder {
         self.retries = retries;
         self
     }
+    pub fn authors(mut self, authors: &str) -> Self {
+        self.authors = Some(authors.to_string());
+        self
+    }
+    pub fn ids(mut self, ids: &str) -> Self {
+        self.ids = Some(ids.to_string());
+        self
+    }
+    pub fn limit(mut self, limit: i32) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+    pub fn generic(mut self, generic: &(&str, &str)) -> Self {
+        //self.ids = Some(generic.to_string());
+        self
+    }
+    pub fn hashtag(mut self, hashtag: &str) -> Self {
+        self.hashtag = Some(hashtag.to_string());
+        self
+    }
+    pub fn mentions(mut self, mentions: &str) -> Self {
+        self.mentions = Some(mentions.to_string());
+        self
+    }
+    pub fn references(mut self, references: &str) -> Self {
+        self.references = Some(references.to_string());
+        self
+    }
+    pub fn kinds(mut self, kinds: &str) -> Self {
+        self.kinds = Some(kinds.to_string());
+        self
+    }
     pub fn build(self) -> Result<Config, String> {
         Ok(Config {
             host: self.host.ok_or("Missing host")?,
