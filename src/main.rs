@@ -2,7 +2,7 @@ use clap::{Arg, Command};
 use futures::{SinkExt, StreamExt};
 use gnostr_query::build_gnostr_query;
 use log::debug;
-use serde_json::{json, to_string, Value};
+use serde_json::{json, to_string, Map, Value};
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use url::Url;
 
@@ -98,11 +98,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    let mut tag: String = "".to_string();
+    let mut val: Vec<&str> = vec![""];
     if let Some(generic) = matches.get_many::<String>("generic") {
         let generic_vec: Vec<&String> = generic.collect();
         if generic_vec.len() == 2 {
-            let tag = format!("#{}", generic_vec[0]);
-            let val = generic_vec[1].split(',').collect::<Vec<&str>>();
+            tag = format!("#{}", generic_vec[0]);
+            val = generic_vec[1].split(',').collect::<Vec<&str>>();
             filt.insert(tag, json!(val));
         }
     }
@@ -168,8 +170,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let gnostr_query = build_gnostr_query(
         Some(filt.get("authors").unwrap().to_string()),
         Some(filt.get("ids").unwrap().to_string()),
-        None,
-        None,
+        Some(limit_check),
+        Some(("".to_string(), Some(Map::new()))),
         None,
         None,
         None,
@@ -177,11 +179,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
     let v: Value = serde_json::from_str(&gnostr_query.unwrap().clone())?;
 
-    println!("176:{:?}", v);
+    debug!("180:{:?}", v);
 
-    println!("v={:?}", v["kinds"]);
+    debug!("182:v={:?}", v["kinds"]);
     let v: Value = serde_json::from_str(&format!("{:?}", vec_kind_ints.clone()))?;
-    println!("v={:?}", v.get("kinds"));
+    debug!("184:v={:?}", v.get("kinds"));
 
     let q = json!(["REQ", "gnostr-query", filt]);
     let query_string = to_string(&q)?;

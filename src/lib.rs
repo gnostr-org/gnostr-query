@@ -1,10 +1,10 @@
-use serde_json::{json, Map};
+use serde_json::{json, Map, Value};
 
 pub fn build_gnostr_query(
     authors: Option<String>,
     ids: Option<String>,
     limit: Option<i32>,
-    generic: Option<(String, String)>,
+    generic: Option<(String, Option<Map<String, Value>>)>,
     hashtag: Option<&str>,
     mentions: Option<&str>,
     references: Option<&str>,
@@ -32,10 +32,15 @@ pub fn build_gnostr_query(
         filt.insert("limit".to_string(), json!(limit));
     }
 
-    if let Some((tag, val)) = generic {
-        let tag_with_hash = format!("#{}", tag);
-        filt.insert(tag_with_hash, json!(val.split(',').collect::<Vec<&str>>()));
-    }
+    //let val: &str = "";
+    //if let Some((tag, val)) = generic {
+    //    let tag_with_hash = format!("#{}", tag).to_string();
+    //	val = val.clone().insert(Map::new());
+    //    filt.insert(
+    //		tag_with_hash.to_string(),
+    //		json!(&val),
+    //	);
+    //}
 
     if let Some(hashtag) = hashtag {
         filt.insert(
