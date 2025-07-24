@@ -125,7 +125,7 @@ pub async fn send(
     query_string: String,
     relay_url: Url,
     limit: Option<i32>,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     //println!("\n{}\n", query_string);
     //println!("\n{}\n", relay_url);
     //println!("\n{}\n", limit.unwrap());
@@ -136,17 +136,20 @@ pub async fn send(
     let (mut write, mut read) = ws_stream.split();
     write.send(Message::Text(query_string)).await?;
     let mut count: i32 = 0;
+    let mut vec_result: Vec<String> = vec![];
     while let Some(message) = read.next().await {
         let data = message?;
         if count >= limit.unwrap() {
-            std::process::exit(0);
+            //std::process::exit(0);
+            return Ok(vec_result);
         }
         if let Message::Text(text) = data {
-            print!("{text}");
+            //print!("{text}");
+            vec_result.push(text);
             count += 1;
         }
     }
-    Ok(())
+    Ok(vec_result)
 }
 
 pub fn build_gnostr_query(
