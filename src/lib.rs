@@ -4,6 +4,8 @@ use serde_json::{json, Map};
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use url::Url;
 
+pub mod cli;
+
 #[derive(Debug)]
 pub struct Config {
     host: String,
