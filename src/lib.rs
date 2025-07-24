@@ -1,4 +1,7 @@
-use serde_json::{json, Map, Value};
+use futures::{SinkExt, StreamExt};
+use serde_json::{json, to_string, Map, Value};
+use tokio_tungstenite::{connect_async, tungstenite::Message};
+use url::Url;
 
 #[derive(Debug)]
 pub struct Config {
@@ -116,8 +119,30 @@ impl ConfigBuilder {
     }
 }
 
-pub fn send(filter: &Map<String, Value>) {
+pub async fn send(filter: &Map<String, Value>) -> Result<(), Box<dyn std::error::Error>> {
     println!("{:?}", filter);
+
+    let q = json!(["REQ", "gnostr-query", filter]);
+    let query_string = to_string(&q)?;
+    //let relay_url_str = matches.get_one::<String>("relay").unwrap();
+    //let relay_url = Url::parse(relay_url_str)?;
+    //let (ws_stream, _) = connect_async(relay_url).await?;
+    //let (mut write, mut read) = ws_stream.split();
+
+    //write.send(Message::Text(query_string)).await?;
+
+    //let mut count: i32 = 0;
+    //while let Some(message) = read.next().await {
+    //    let data = message?;
+    //    if count >= limit_check {
+    //        std::process::exit(0);
+    //    }
+    //    if let Message::Text(text) = data {
+    //        print!("{}", text);
+    //        count += 1;
+    //    }
+    //}
+    Ok(())
 }
 
 pub fn build_gnostr_query(
