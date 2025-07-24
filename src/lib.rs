@@ -1,4 +1,5 @@
 use futures::{SinkExt, StreamExt};
+use clap::{Arg, ArgMatches, Command};
 use log::debug;
 use serde_json::{json, to_string, Map, Value};
 use tokio_tungstenite::{connect_async, tungstenite::Message};
@@ -18,10 +19,12 @@ pub struct Config {
     mentions: String,
     references: String,
     kinds: String,
+    matches: Command,
 }
 
 #[derive(Debug, Default)]
 pub struct ConfigBuilder {
+    matches: Command,
     host: Option<String>,
     port: Option<u16>,
     use_tls: bool,
@@ -38,6 +41,7 @@ pub struct ConfigBuilder {
 impl ConfigBuilder {
     pub fn new() -> Self {
         ConfigBuilder {
+            matches: Command::new(""),
             host: None,
             port: None,
             use_tls: false,
@@ -102,9 +106,38 @@ impl ConfigBuilder {
         self.kinds = Some(kinds.to_string());
         self
     }
+    pub async fn send(self, config: Config, filter: &Map<String, Value>, matches: Command) -> Result<(), Box<dyn std::error::Error>> {
+        println!("{:?}", filter);
+
+		let matches = matches.get_matches();
+        let q = json!(["REQ", "gnostr-query", filter]);
+        let query_string = to_string(&q)?;
+
+        debug!("{}", query_string);
+        let relay_url_str = matches.get_one::<String>("relay").unwrap();
+        let relay_url = Url::parse(relay_url_str)?;
+        let (ws_stream, _) = connect_async(relay_url).await?;
+        let (mut write, mut read) = ws_stream.split();
+
+        write.send(Message::Text(query_string)).await?;
+
+        let mut count: i32 = 0;
+        while let Some(message) = read.next().await {
+            let data = message?;
+            if count >= config.limit {
+                std::process::exit(0);
+            }
+            if let Message::Text(text) = data {
+                print!("{}", text);
+                count += 1;
+            }
+        }
+        Ok(())
+    }
     pub fn build(self) -> Result<Config, String> {
         Ok(Config {
-            host: self.host.ok_or("Missing host")?,
+            matches: Command::new(""),
+			host: self.host.ok_or("Missing host")?,
             port: self.port.ok_or("Missing port")?,
             use_tls: self.use_tls,
             retries: self.retries,
@@ -118,32 +151,6 @@ impl ConfigBuilder {
             kinds: self.kinds.ok_or("")?,
         })
     }
-}
-
-pub async fn send(filter: &Map<String, Value>) -> Result<(), Box<dyn std::error::Error>> {
-    println!("{:?}", filter);
-
-    let q = json!(["REQ", "gnostr-query", filter]);
-    let query_string = to_string(&q)?;
-    //let relay_url_str = matches.get_one::<String>("relay").unwrap();
-    //let relay_url = Url::parse(relay_url_str)?;
-    //let (ws_stream, _) = connect_async(relay_url).await?;
-    //let (mut write, mut read) = ws_stream.split();
-
-    //write.send(Message::Text(query_string)).await?;
-
-    //let mut count: i32 = 0;
-    //while let Some(message) = read.next().await {
-    //    let data = message?;
-    //    if count >= limit_check {
-    //        std::process::exit(0);
-    //    }
-    //    if let Message::Text(text) = data {
-    //        print!("{}", text);
-    //        count += 1;
-    //    }
-    //}
-    Ok(())
 }
 
 pub fn build_gnostr_query(
