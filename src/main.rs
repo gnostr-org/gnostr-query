@@ -1,4 +1,3 @@
-use clap::{Arg, Command};
 use gnostr_query::cli::cli;
 use gnostr_query::ConfigBuilder;
 use log::debug;
