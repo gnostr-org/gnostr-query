@@ -154,7 +154,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .retries(5)
         .authors("")
         .ids("")
-        .limit(1)
+        .limit(limit_check.clone())
         .generic("", "")
         .hashtag("")
         .mentions("")
@@ -163,31 +163,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build()?;
 
     debug!("{:?}", config);
-
-
-//pub async fn send(self, config: Config, filter: &Map<String, Value>, command: Command) -> Result<(), Box<dyn std::error::Error>> {
-
-	//config.send(filt, matches);
     let q = json!(["REQ", "gnostr-query", filt]);
     let query_string = to_string(&q)?;
     let relay_url_str = matches.get_one::<String>("relay").unwrap();
     let relay_url = Url::parse(relay_url_str)?;
-    let (ws_stream, _) = connect_async(relay_url).await?;
-    let (mut write, mut read) = ws_stream.split();
-
-    write.send(Message::Text(query_string)).await?;
-
-    let mut count: i32 = 0;
-    while let Some(message) = read.next().await {
-        let data = message?;
-        if count >= limit_check {
-            std::process::exit(0);
-        }
-        if let Message::Text(text) = data {
-            print!("{}", text);
-            count += 1;
-        }
-    }
-
+    let _ = gnostr_query::send(query_string.clone(), relay_url, Some(limit_check)).await;
     Ok(())
 }
