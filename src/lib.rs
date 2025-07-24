@@ -1,4 +1,5 @@
 use futures::{SinkExt, StreamExt};
+use log::debug;
 use serde_json::{json, to_string, Map, Value};
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use url::Url;
