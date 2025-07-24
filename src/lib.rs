@@ -1,4 +1,4 @@
-use serde_json::{json, Map};
+use serde_json::{json, Map, Value};
 
 #[derive(Debug)]
 pub struct Config {
@@ -116,7 +116,9 @@ impl ConfigBuilder {
     }
 }
 
-pub fn send(filter: Map<String, Vec<String>>) {}
+pub fn send(filter: &Map<String, Value>) {
+    println!("{:?}", filter);
+}
 
 pub fn build_gnostr_query(
     authors: Option<&str>,
