@@ -1,9 +1,12 @@
 use gnostr_query::cli::cli;
 use gnostr_query::ConfigBuilder;
-use log::debug;
+use log::{debug, trace};
 use serde_json::{json, to_string};
 use url::Url;
 
+/// Usage
+/// nip-0034 kinds
+/// gnostr-query -k 1630,1632,1621,30618,1633,1631,1617,30617
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let matches = cli().await?;
@@ -91,8 +94,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     debug!("{config:?}");
     let q = json!(["REQ", "gnostr-query", filt]);
     let query_string = to_string(&q)?;
-    let relay_url_str = matches.get_one::<String>("relay").unwrap();
+    let relay_url_str = matches.get_one::<String>("relay").clone().unwrap();
     let relay_url = Url::parse(relay_url_str)?;
-    let _ = gnostr_query::send(query_string.clone(), relay_url, Some(limit_check)).await;
+    let vec_result = gnostr_query::send(query_string.clone(), relay_url, Some(limit_check)).await;
+    //trace
+    trace!("{:?}", vec_result);
+
+    let mut json_result: Vec<String> = vec![];
+    for element in vec_result.unwrap() {
+        println!("{}", element);
+        json_result.push(element);
+    }
+    //trace
+    for element in json_result {
+        trace!("json_result={}", element);
+    }
     Ok(())
 }
