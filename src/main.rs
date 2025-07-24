@@ -1,6 +1,7 @@
 use clap::{Arg, Command};
 use futures::{SinkExt, StreamExt};
 use gnostr_query::ConfigBuilder;
+use log::debug;
 use serde_json::{json, to_string};
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use url::Url;
@@ -161,7 +162,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .kinds("")
         .build()?;
 
-    println!("{:?}", config);
+    debug!("{:?}", config);
 
     let q = json!(["REQ", "gnostr-query", filt]);
     let query_string = to_string(&q)?;
