@@ -164,6 +164,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     debug!("{:?}", config);
 
+
+//pub async fn send(self, config: Config, filter: &Map<String, Value>, command: Command) -> Result<(), Box<dyn std::error::Error>> {
+
+	//config.send(filt, matches);
     let q = json!(["REQ", "gnostr-query", filt]);
     let query_string = to_string(&q)?;
     let relay_url_str = matches.get_one::<String>("relay").unwrap();
