@@ -80,7 +80,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .retries(5)
         .authors("")
         .ids("")
-        .limit(limit_check.clone())
+        .limit(limit_check)
         .generic("", "")
         .hashtag("")
         .mentions("")
@@ -88,7 +88,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .kinds("")
         .build()?;
 
-    debug!("{:?}", config);
+    debug!("{config:?}");
     let q = json!(["REQ", "gnostr-query", filt]);
     let query_string = to_string(&q)?;
     let relay_url_str = matches.get_one::<String>("relay").unwrap();

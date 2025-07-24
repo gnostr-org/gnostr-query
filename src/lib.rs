@@ -129,8 +129,8 @@ pub async fn send(
     //println!("\n{}\n", query_string);
     //println!("\n{}\n", relay_url);
     //println!("\n{}\n", limit.unwrap());
-    debug!("\n{}\n", query_string);
-    debug!("\n{}\n", relay_url);
+    debug!("\n{query_string}\n");
+    debug!("\n{relay_url}\n");
     debug!("\n{}\n", limit.unwrap());
     let (ws_stream, _) = connect_async(relay_url).await?;
     let (mut write, mut read) = ws_stream.split();
@@ -142,7 +142,7 @@ pub async fn send(
             std::process::exit(0);
         }
         if let Message::Text(text) = data {
-            print!("{}", text);
+            print!("{text}");
             count += 1;
         }
     }
@@ -180,7 +180,7 @@ pub fn build_gnostr_query(
     }
 
     if let Some((tag, val)) = generic {
-        let tag_with_hash = format!("#{}", tag);
+        let tag_with_hash = format!("#{tag}");
         filt.insert(tag_with_hash, json!(val.split(',').collect::<Vec<&str>>()));
     }
 
